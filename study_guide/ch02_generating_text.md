@@ -13,12 +13,17 @@ Ch 4–5 (sampling variants of it), Ch 6–7 (RL rollouts are `generate()` calls
 ## 1. The 10,000-ft view
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     S["📝 'What is 2+2?'"] -->|tokenizer.encode| T["🔢 [3838, 374, 220, 17, 10, 17, 30]"]
     T -->|model forward pass| L["📊 logits: one score per<br/>vocab token (~150k)"]
     L -->|pick one| N["🔢 next token id"]
     N -->|append & repeat| T
     N -->|tokenizer.decode| O["📝 ' 4'"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class T,L,N data
+    class O good
 ```
 
 Three components, three subsections:
@@ -92,11 +97,16 @@ next_token_logits = logits[:, -1, :]   # we only need the LAST position
 - `softmax(logits)` turns scores into probabilities over the whole vocabulary.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     I["input ids: [What, is, 2, +, 2, ?]"] --> M["Transformer<br/>(28 blocks for Qwen3-0.6B)"]
     M --> LG["logits at last position<br/>(one score per vocab entry)"]
     LG --> SM["softmax → probabilities"]
     SM --> P["' 4' → 0.62<br/>' four' → 0.11<br/>' 5' → 0.04<br/>… 151k more …"]
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class M model
+    class I,LG,P data
 ```
 
 ---
@@ -130,6 +140,7 @@ Line-by-line, what matters:
 | `torch.cat` | The appended token becomes context for the next step — this is what "autoregressive" means. |
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     START(["prompt ids"]) --> F["forward pass → logits"]
     F --> LAST["take logits at last position"]
@@ -140,6 +151,12 @@ flowchart TB
     LEN -- yes --> DONE
     LEN -- no --> APP["append token to context"]
     APP --> F
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    class EOS,LEN dec
+    class DONE good
+    class START dim
 ```
 
 ### Why is this slow? (and the fix)

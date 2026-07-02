@@ -26,6 +26,7 @@ Before this book starts, a lot has already happened. Here is the standard LLM
 life cycle — the book picks up at the ★:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph PRE["Pretraining (not in this book)"]
         D["🌐 Internet-scale text"] --> PT["Next-token prediction<br/>on trillions of tokens"]
@@ -44,6 +45,12 @@ flowchart LR
     EVAL["📏 Evaluation with a math verifier — Ch 3"]
     RM <-->|measure improvement| EVAL
     BASE <-->|measure baseline| EVAL
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class D data
+    class BASE,RM model
+    class EVAL dec
 ```
 
 **Key insight:** the three improvement arrows are *independent and composable*.
@@ -65,6 +72,7 @@ several.
 | **Fragility** | Robust, simple | Hyperparameter-sensitive, can collapse | Robust, simple |
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"quadrant1Fill":"#dcf3dc","quadrant2Fill":"#e0edfb","quadrant3Fill":"#f0efec","quadrant4Fill":"#fdf0d1","quadrant1TextFill":"#52514e","quadrant2TextFill":"#52514e","quadrant3TextFill":"#52514e","quadrant4TextFill":"#52514e","quadrantPointFill":"#2a78d6","quadrantPointTextFill":"#52514e","quadrantXAxisTextFill":"#898781","quadrantYAxisTextFill":"#898781","quadrantTitleFill":"#898781","quadrantInternalBorderStrokeFill":"#c3c2b7","quadrantExternalBorderStrokeFill":"#a9a7a0"}}}%%
 quadrantChart
     title Cost vs. capability gain of each method
     x-axis Low implementation effort --> High implementation effort
@@ -84,6 +92,7 @@ quadrantChart
 Everything in the book is one instance of this loop:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     A["1️⃣ Take a model"] --> B["2️⃣ Generate answers to<br/>math questions (Ch 2)"]
     B --> C["3️⃣ Extract final answer<br/>and verify it (Ch 3)"]
@@ -91,6 +100,10 @@ flowchart TB
     D --> E{"Try an improvement"}
     E -->|"prompt / sample differently (Ch 4–5)"| B
     E -->|"update weights (Ch 6–8)"| A
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class A model
+    class C,E dec
 ```
 
 This is why **Chapter 3 (evaluation) is the keystone chapter**: without a

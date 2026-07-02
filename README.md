@@ -17,6 +17,7 @@ Every module follows the same philosophy:
 ## 🗺️ The whole book on one map
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     subgraph P1["🏗️ PART 1 — Foundations"]
         C1["Ch 1: What is a<br/>reasoning model?"]
@@ -53,6 +54,12 @@ flowchart TB
     C4 -.speed up.-> AE
     C3 -.broader view.-> AF
     C8 -.try it live.-> AG
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    class C4,C5 data
+    class C6,C7,C8 model
+    class AC,AD,AE,AF,AG dim
 ```
 
 **The core idea of the whole book in one sentence:**
@@ -109,6 +116,7 @@ then with training (reinforcement learning and distillation).*
 ## 🧭 Recommended learning paths
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     START(("Start")) --> Q1{"Comfortable with<br/>transformers &<br/>PyTorch?"}
     Q1 -- "No" --> PATH_A["🐣 Full path:<br/>00 → Ch1 → App C → Ch2 → Ch3<br/>→ Ch4 → Ch5 → Ch6 → Ch7 → Ch8"]
@@ -116,6 +124,10 @@ flowchart LR
     Q2 -- "RL / GRPO" --> PATH_B["🎯 Fast path to RL:<br/>00 → Ch3 → Ch6 → Ch7"]
     Q2 -- "Inference tricks" --> PATH_C["⚡ Inference path:<br/>00 → Ch2 → Ch4 → Ch5 → App E"]
     Q2 -- "Everything, quickly" --> PATH_D["🚀 Review path:<br/>00 → Cheatsheet →<br/>skim each chapter's diagrams"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    class Q1,Q2 dec
+    class START dim
 ```
 
 ---

@@ -36,6 +36,7 @@ sweet-talked (though it *can* be gamed — see §5).
 ## 2. The evaluation pipeline
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     DS[("📚 Math dataset<br/>question + reference answer")] --> Q["question"]
     Q -->|"format prompt<br/>(ask for \boxed{...})"| P["prompt"]
@@ -47,6 +48,14 @@ flowchart LR
     V -- yes --> C1["✅ correct += 1"]
     V -- no --> C0["❌"]
     C1 & C0 --> ACC["accuracy = correct / total"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    classDef bad fill:#fbe3e3,stroke:#d03b3b,color:#6d1f1f
+    class DS,REF,EX data
+    class V dec
+    class C1,ACC good
+    class C0 bad
 ```
 
 Four sub-problems, each deceptively tricky:
@@ -107,6 +116,7 @@ Exact string match is too strict:
 So the verifier normalizes both sides, then compares on multiple levels:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     A["extracted & reference strings"] --> N["normalize: strip spaces, $, units,<br/>'x=' prefixes, commas; canonicalize \frac"]
     N --> S1{"string equal?"}
@@ -116,6 +126,12 @@ flowchart TB
     S2 -- no --> S3{"symbolic check (e.g. sympy):<br/>difference simplifies to 0?"}
     S3 -- yes --> OK
     S3 -- no --> BAD["❌ wrong"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    classDef bad fill:#fbe3e3,stroke:#d03b3b,color:#6d1f1f
+    class S1,S2,S3 dec
+    class OK good
+    class BAD bad
 ```
 
 > **Principle: graded leniency.** Try cheap exact checks first, fall back to

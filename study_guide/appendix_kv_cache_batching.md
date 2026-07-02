@@ -15,6 +15,7 @@ The Ch 2 loop feeds the **whole sequence** through the model for **every new
 token**:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     s1["step 1: process [p1 p2 p3 p4]        → token a"]
     s2["step 2: process [p1 p2 p3 p4 a]      → token b"]
@@ -38,6 +39,7 @@ Store each layer's K and V for all processed tokens. Each new step feeds **only
 the one new token**; its Q attends against the cached K/V:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph PREFILL["Phase 1 — PREFILL (once)"]
         P["full prompt"] --> F["one forward pass"] --> KV[("KV cache:<br/>K,V per layer, per position")]
@@ -49,6 +51,8 @@ flowchart LR
         ONE -->|append its K,V| KV
         ONE --> NXT["next token"] --> ONE
     end
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class P,KV data
 ```
 
 ```python
@@ -98,6 +102,7 @@ reused for B tokens — throughput scales almost linearly until compute
 saturates.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph SOLO["B=1"]
         W1["read 1.2 GB weights"] --> O1["1 token out"]
@@ -105,6 +110,10 @@ flowchart LR
     subgraph BATCH["B=32"]
         W2["read 1.2 GB weights (same!)"] --> O2["32 tokens out"]
     end
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class W1,W2 model
+    class O2 good
 ```
 
 This is *exactly* what Ch 4's self-consistency and Ch 6's GRPO rollouts need:
@@ -117,12 +126,17 @@ Sequences in a batch differ in length → padding + an **attention mask** so pad
 tokens are ignored; and sequences *finish* at different times:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     A["seq 1: ████████░░  (done at step 8)"]
     B["seq 2: ██████████  (still going)"]
     C["seq 3: ███░░░░░░░  (done at step 3)"]
     A & B & C --> W["naive static batching: everyone waits<br/>for the longest sequence (wasted slots ░)"]
     W --> CB["✨ continuous batching (serving systems):<br/>finished slot → immediately refilled<br/>with a new request"]
+    classDef bad fill:#fbe3e3,stroke:#d03b3b,color:#6d1f1f
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class W bad
+    class CB good
 ```
 
 The book implements clean static batching; production engines (vLLM etc.) add

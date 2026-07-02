@@ -41,6 +41,7 @@ prediction ("the answer is ___") into many easy ones. The model is writing its
 own scratchpad.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph NR["Non-reasoning model"]
         Q1["Question"] -->|one hard jump| A1["Answer"]
@@ -48,6 +49,10 @@ flowchart LR
     subgraph R["Reasoning model"]
         Q2["Question"] --> S1["Step 1"] --> S2["Step 2"] --> S3["Step 3"] --> A2["Answer"]
     end
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class Q1,Q2 dim
+    class A1,A2 good
 ```
 
 ### ⚠️ Important nuance
@@ -63,6 +68,7 @@ useful computational pattern, not a transcript of a mind.
 ## 2. Where reasoning models fit in the LLM pipeline
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     A["🌐 Pretraining<br/>next-token prediction on web-scale text"] --> B["Base LLM<br/>completes text, follows no instructions"]
     B --> C["📋 Supervised fine-tuning (SFT)<br/>on instruction–response pairs"]
@@ -77,6 +83,8 @@ flowchart TB
         G3["Distillation of reasoning traces (Ch 8)"]
     end
     G --> H["🧠 Reasoning model<br/>(o-series, DeepSeek-R1, Qwen3-thinking …)"]
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    class B,D,F,H model
 ```
 
 Things to notice:
@@ -94,6 +102,7 @@ Things to notice:
 ## 3. The two method families (the book's table of contents in disguise)
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     ROOT["How do we get more reasoning<br/>out of an LLM?"] --> ITS["⚡ Inference-time scaling<br/>(spend compute at answer time)"]
     ROOT --> TT["🏋️ Training-time methods<br/>(spend compute once, in training)"]
@@ -104,6 +113,8 @@ flowchart TB
 
     TT --> RL["Reinforcement learning<br/>with verifiable rewards: GRPO (Ch 6–7)"]
     TT --> DI["Distillation: SFT on a stronger<br/>model's reasoning traces (Ch 8)"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class ROOT dec
 ```
 
 Memorize the distinction on one axis: **when is the extra compute spent?**
@@ -120,6 +131,7 @@ Memorize the distinction on one axis: **when is the extra compute spent?**
 Within inference-time scaling there is a second useful axis:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph PAR["Parallel scaling (Ch 4)"]
         Q["Question"] --> A1["Sample 1"]
@@ -130,6 +142,10 @@ flowchart LR
     subgraph SEQ["Sequential scaling (Ch 5)"]
         Q2["Question"] --> D1["Draft"] --> CR["Critique"] --> D2["Revised draft"] --> ANS["Answer"]
     end
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class V dec
+    class ANS good
 ```
 
 - **Parallel:** independent samples, aggregate at the end. Trivially parallelizable.
@@ -140,6 +156,7 @@ flowchart LR
 ## 4. A brief history you should be able to reproduce from memory
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"cScale0":"#2a78d6","cScaleLabel0":"#ffffff","cScale1":"#1baf7a","cScaleLabel1":"#ffffff","cScale2":"#4a3aa7","cScaleLabel2":"#ffffff","cScale3":"#d03b3b","cScaleLabel3":"#ffffff","primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","titleColor":"#898781"}}}%%
 timeline
     title Milestones on the road to reasoning models
     2022 : Chain-of-thought prompting discovered — "let's think step by step" boosts accuracy on math
@@ -178,12 +195,17 @@ Two practical costs to remember:
 ## 6. The book's concrete plan (what you'll actually build)
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     M["Qwen3-0.6B base<br/>(small, laptop-friendly)"] --> G["Ch 2: generate()<br/>token loop"]
     G --> E["Ch 3: math verifier<br/>+ accuracy harness"]
     E --> I["Ch 4–5: sampling, voting,<br/>self-refinement"]
     E --> T["Ch 6–7: GRPO training loop"]
     E --> D["Ch 8: distillation SFT loop"]
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class M model
+    class E dec
 ```
 
 Why a 0.6B model? Because *from scratch* means running everything yourself:

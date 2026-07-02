@@ -16,6 +16,7 @@ No sample learns from another. This chapter spends compute **in sequence**:
 each step sees, and improves on, the previous output.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph PAR["Ch 4 — parallel (breadth)"]
         Q1["Q"] --> a1["try"] & a2["try"] & a3["try"] --> V["vote"]
@@ -23,6 +24,10 @@ flowchart LR
     subgraph SEQ["Ch 5 — sequential (depth)"]
         Q2["Q"] --> d["draft"] --> c["critique"] --> r["revise"] --> ANS["answer"]
     end
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class V dec
+    class ANS good
 ```
 
 | | Parallel (Ch 4) | Sequential (Ch 5) |
@@ -39,6 +44,7 @@ flowchart LR
 Three prompts, one model, one loop:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     Q["Question"] --> GEN["1️⃣ GENERATE<br/>'Solve step by step…' → draft"]
     GEN --> CRIT["2️⃣ CRITIQUE<br/>'Review this solution. Check each step.<br/>List any errors.' → feedback"]
@@ -46,6 +52,10 @@ flowchart TB
     DEC -- "no / max rounds" --> OUT(["final answer"])
     DEC -- yes --> REV["3️⃣ REVISE<br/>'Given this feedback,<br/>produce a corrected solution.'"]
     REV --> CRIT
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class DEC dec
+    class OUT good
 ```
 
 ```python
@@ -90,6 +100,7 @@ most **fragile**. Key findings you should be able to recite:
    gains, and measure (Ch 3 harness!) rather than assume.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph WEAK["Intrinsic refinement (fragile)"]
         M1["model"] -->|critiques itself| M1
@@ -98,6 +109,10 @@ flowchart LR
         M2["model"] --> T["verifier / tests / tool"]
         T -->|"objective error signal"| M2
     end
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class M1,M2 model
+    class T dec
 ```
 
 > **The bridge to Part 3:** the reliable external signal for math *exists* —
@@ -113,6 +128,7 @@ flowchart LR
 The methods compose. Two standard combinations:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     subgraph COMBO1["Refine-then-vote"]
         Q["Q"] --> r1["refine chain 1"] & r2["refine chain 2"] & r3["refine chain 3"]
@@ -121,6 +137,8 @@ flowchart TB
     subgraph COMBO2["Vote-then-refine"]
         Q2["Q"] --> s1["sample ×N"] --> VOTE2["vote"] --> REF["refine the winner"]
     end
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class VOTE,VOTE2 dec
 ```
 
 Budget thinking: with a fixed budget of ~N total generations, pure voting is a

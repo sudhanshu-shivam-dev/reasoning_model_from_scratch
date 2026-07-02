@@ -24,11 +24,18 @@ Classic RL vocabulary → what it means here:
 | **Environment** | Trivial: the "world" is just the growing text + the grader at the end |
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     P["Policy = LLM π_θ"] -->|"generate answer<br/>(one action per token)"| E["Episode:<br/>question + full response"]
     E --> V["Verifier (Ch 3)"]
     V -->|"reward r ∈ {0, 1}"| U["Update θ:<br/>make rewarded behavior<br/>more probable"]
     U --> P
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class P model
+    class E data
+    class V dec
 ```
 
 Two features make LLM-RL *simpler* than robot-RL:
@@ -85,6 +92,7 @@ The group average *is* the baseline. No extra network, no learned value
 function — just "were you better than your siblings?"
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     Q["Question: 'What is 17 × 23?'"] --> G1["response 1 → ✅ r=1"]
     Q --> G2["response 2 → ❌ r=0"]
@@ -95,6 +103,10 @@ flowchart TB
     STAT --> A2["A₂ = −0.87 → push DOWN"]
     STAT --> A3["A₃ = +0.87 → push UP"]
     STAT --> A4["A₄ = −0.87 → push DOWN"]
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    classDef bad fill:#fbe3e3,stroke:#d03b3b,color:#6d1f1f
+    class G1,G3,A1,A3 good
+    class G2,G4,A2,A4 bad
 ```
 
 Every token of response i inherits the same advantage A_i (the end-of-exam
@@ -124,10 +136,17 @@ Once it drifts past 1±ε (ε≈0.2), clipping **kills the gradient** — no mor
 credit for pushing further. It's a trust region on the cheap.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     RHO["ratio ρ = π_new / π_old"] --> C{"is ρ inside<br/>[1−ε, 1+ε]?"}
     C -- yes --> FULL["gradient flows:<br/>ρ · A"]
     C -- "no (and moving further would<br/>increase the objective)" --> CLIP["clipped: gradient = 0<br/>(this token already moved enough)"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    class C dec
+    class FULL good
+    class CLIP dim
 ```
 
 ### 2.5 KL penalty: don't wander off
@@ -149,6 +168,7 @@ tokens → averaged over the group → minus KL. Every piece was motivated above
 ## 3. The GRPO training loop, end to end
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     START(["training batch of questions"]) --> ROLL["🎲 ROLLOUT<br/>for each question: sample G responses<br/>(temperature sampling, no grad)"]
     ROLL --> GRADE["📏 GRADE<br/>verifier (Ch 3) → reward per response<br/>(answer correct? + format ok?)"]
@@ -158,6 +178,12 @@ flowchart TB
     STEP --> REF["(optional) KL vs frozen reference model"]
     REF --> EVAL{"periodically:<br/>eval accuracy (Ch 3 harness)"}
     EVAL --> START
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    class START data
+    class GRADE,EVAL dec
+    class REF model
 ```
 
 Skeleton code with the crucial shapes:

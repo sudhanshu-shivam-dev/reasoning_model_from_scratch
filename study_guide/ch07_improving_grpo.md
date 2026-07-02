@@ -12,6 +12,7 @@
 ## 1. The map: five problems, five fixes
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph PROBLEMS["Vanilla GRPO problem"]
         P1["Zero-variance groups<br/>→ no gradient, wasted compute"]
@@ -32,6 +33,10 @@ flowchart LR
     P3 --> F3
     P4 --> F4
     P5 --> F5
+    classDef bad fill:#fbe3e3,stroke:#d03b3b,color:#6d1f1f
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class P1,P2,P3,P4,P5 bad
+    class F1,F2,F3,F4,F5 good
 ```
 
 Each section below: symptom → mechanism → fix → one-liner to remember.
@@ -52,6 +57,7 @@ multiply), so the effective batch size silently shrinks.
 new questions until the batch is full of *informative* (mixed-reward) groups.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     S["sample question, generate G responses"] --> C{"rewards mixed?<br/>(not all 0, not all 1)"}
     C -- yes --> KEEP["keep group in batch"]
@@ -60,6 +66,12 @@ flowchart TB
     KEEP --> FULL{"batch full?"}
     FULL -- no --> S
     FULL -- yes --> UPDATE["gradient update on 100%-useful batch"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    classDef bad fill:#fbe3e3,stroke:#d03b3b,color:#6d1f1f
+    class C,FULL dec
+    class KEEP,UPDATE good
+    class DROP bad
 ```
 
 Cost: extra rollouts. Gain: every gradient step is on-signal — empirically well
@@ -88,6 +100,7 @@ entropy collapses.
 against crushing probabilities to zero.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph OLD["symmetric clip (vanilla)"]
         O["ratio ∈ [0.8, 1.2]"]
@@ -96,6 +109,10 @@ flowchart LR
         N["ratio ∈ [0.8, 1.28]<br/>↑ more room to grow rare tokens"]
     end
     OLD --> NEW
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class O dim
+    class N good
 ```
 
 > **Remember it as:** *let the underdogs climb — loosen only the upper bound.*
@@ -147,11 +164,16 @@ vanilla GRPO trains on it as if the reasoning were bad.
 2. **Soft overlong punishment:** a graduated penalty ramping in near the cap, so the model gets a *gentle* "wrap it up" pressure instead of a random 0.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     R["rollout hits max_new_tokens?"] -- no --> NORM["grade normally"]
     R -- yes --> CH{"strategy"}
     CH --> M["mask from loss<br/>(don't learn from artifacts)"]
     CH --> SP["soft penalty ∝ overshoot<br/>(teach conciseness smoothly)"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class R,CH dec
+    class NORM good
 ```
 
 > **Remember it as:** *don't grade the essay the proctor tore in half.*
@@ -185,6 +207,7 @@ language degradation.
 ## 7. The upgraded loop (all fixes assembled)
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     A["sample questions"] --> B["generate G responses each"]
     B --> C["grade with verifier"]
@@ -196,6 +219,8 @@ flowchart TB
     G --> H["optimizer step (tiny LR)"]
     H --> I{"eval every k steps<br/>(Ch 3 harness, held-out)"}
     I --> A
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class C,D,I dec
 ```
 
 Hyperparameters that matter most, in rough order: learning rate (≈1e-6 scale)

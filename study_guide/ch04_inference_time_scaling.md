@@ -13,11 +13,14 @@
 ## 1. The ladder we climb in this chapter
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     L0["Level 0 — Greedy answer<br/>(Ch 2 baseline)"] --> L1["Level 1 — CoT prompting:<br/>ask for step-by-step + \boxed{}"]
     L1 --> L2["Level 2 — Sampling:<br/>temperature & top-k make each<br/>run a *different* solution path"]
     L2 --> L3["Level 3 — Self-consistency:<br/>sample N paths, majority-vote<br/>the final answers"]
     L3 -.->|next chapter| L4["Level 4 — Self-refinement<br/>(sequential, Ch 5)"]
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    class L0,L4 dim
 ```
 
 Each level costs more tokens and buys more accuracy. The chapter's empirical
@@ -74,6 +77,7 @@ next_id = torch.multinomial(probs, num_samples=1)   # sample, don't argmax
 | > 1 | Flattens → creative → incoherent | Rarely for math |
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"xyChart":{"backgroundColor":"transparent","plotColorPalette":"#2a78d6,#1baf7a,#eda100","xAxisLabelColor":"#898781","xAxisTitleColor":"#898781","xAxisTickColor":"#898781","xAxisLineColor":"#a9a7a0","yAxisLabelColor":"#898781","yAxisTitleColor":"#898781","yAxisTickColor":"#898781","yAxisLineColor":"#a9a7a0","titleColor":"#898781"}}}}%%
 xychart-beta
     title "Effect of temperature on next-token probabilities (illustrative)"
     x-axis ["' 4'", "' four'", "' 5'", "' the'", "other"]
@@ -100,12 +104,15 @@ probs = torch.softmax(logits / T, dim=-1)             # combine with temperature
 cumulative probability ≥ p. Same purpose, adaptive cutoff.)
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     LOG["logits (151k values)"] --> TK["top-k filter:<br/>keep k best, rest → -inf"]
     TK --> TEMP["divide by temperature T"]
     TEMP --> SM["softmax"]
     SM --> MN["multinomial sample"]
     MN --> TOKEN["next token"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class LOG,TOKEN data
 ```
 
 > **Order matters little between top-k and temperature, but both come before
@@ -121,6 +128,7 @@ flowchart LR
 final answer (Ch 3 extractor), and return the most frequent one.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     Q["Question"] --> S1["Sample #1 (T=0.7)<br/>…path A… \boxed{11}"]
     Q --> S2["Sample #2<br/>…path B… \boxed{11}"]
@@ -130,6 +138,12 @@ flowchart TB
     S1 & S2 & S3 & S4 & S5 --> EX["extract final answers:<br/>[11, 11, 9, 11, 14]"]
     EX --> VOTE["majority vote"]
     VOTE --> ANS["✅ 11 (3/5 votes)"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class EX data
+    class VOTE dec
+    class ANS good
 ```
 
 ```python
@@ -161,6 +175,7 @@ model that's confidently, systematically wrong gets *more* wrong with voting.
 ### The scaling curve
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"xyChart":{"backgroundColor":"transparent","plotColorPalette":"#2a78d6,#1baf7a,#eda100","xAxisLabelColor":"#898781","xAxisTitleColor":"#898781","xAxisTickColor":"#898781","xAxisLineColor":"#a9a7a0","yAxisLabelColor":"#898781","yAxisTitleColor":"#898781","yAxisTickColor":"#898781","yAxisLineColor":"#a9a7a0","titleColor":"#898781"}}}}%%
 xychart-beta
     title "Accuracy vs. number of sampled solutions (typical shape)"
     x-axis [1, 2, 4, 8, 16, 32, 64]

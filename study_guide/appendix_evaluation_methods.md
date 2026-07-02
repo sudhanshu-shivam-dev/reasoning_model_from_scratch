@@ -11,6 +11,7 @@
 ## 1. The four families
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     ROOT["How do we evaluate an LLM?"] --> B1["📝 Multiple-choice benchmarks<br/>(MMLU & friends)"]
     ROOT --> B2["✅ Verifier-based<br/>(math answers, code unit tests)<br/>← Ch 3's approach"]
@@ -21,6 +22,10 @@ flowchart TB
     B2 --- N2["measures: verifiable task<br/>correctness, end-to-end"]
     B3 --- N3["measures: perceived quality<br/>of open-ended answers"]
     B4 --- N4["measures: fit to a text<br/>distribution (no task at all)"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    class ROOT dec
+    class N1,N2,N3,N4 dim
 ```
 
 One line each:
@@ -41,6 +46,7 @@ Format: question + options A–D; score = fraction correct.
 Two scoring styles, and the difference matters:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     Q["question + choices"] --> S1["Generative scoring:<br/>model writes an answer letter —<br/>needs instruction-following + parsing"]
     Q --> S2["Likelihood scoring:<br/>compare model's probability of<br/>each option; pick argmax —<br/>works even for base models"]
@@ -93,11 +99,16 @@ win votes independent of correctness.
 Replace the human voter with a strong LLM and a grading rubric:
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     P["prompt"] --> MA["Model A answer"] & MB["Model B answer"]
     MA & MB --> J["🧑‍⚖️ judge LLM + rubric"]
     J --> V["verdict: A / B / tie<br/>(+ rationale)"]
     V --> AGG["aggregate over many prompts<br/>→ win rate"]
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class MA,MB model
+    class J dec
 ```
 
 Scales infinitely and correlates well with human preference — but budget for
@@ -140,6 +151,7 @@ barely move perplexity, and an RL model's perplexity on generic text may even
 ## 6. Choosing an evaluation — decision guide
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     S{"What are you measuring?"} --> A["Pretraining progress /<br/>modeling ability"]
     S --> B["Objective task skill<br/>(math, code)"]
@@ -149,6 +161,10 @@ flowchart TB
     B --> VER["verifier-based benchmark<br/>(Ch 3 harness)"]
     C --> JUD["LLM-as-a-judge with<br/>debiased protocol; human<br/>arena for final claims"]
     D --> MC["multiple-choice suite<br/>(MMLU etc.)"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class S dec
+    class PPL,VER,JUD,MC good
 ```
 
 Universal hygiene, whatever you pick:

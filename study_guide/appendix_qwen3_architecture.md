@@ -12,6 +12,7 @@
 ## 1. The whole model at a glance
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     IDS["token ids (B, T)"] --> EMB["token embedding<br/>(vocab 151k → d=1024)"]
     EMB --> BLK["🔁 × 28 transformer blocks"]
@@ -22,6 +23,8 @@ flowchart TB
     end
     BLK --> FN["final RMSNorm"]
     FN --> HEAD["output head → logits (B, T, 151k)<br/>(weight-tied with embedding in 0.6B)"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class IDS,HEAD data
 ```
 
 Qwen3-0.6B vitals (the book's workhorse):
@@ -108,6 +111,7 @@ $$\text{Attn}(Q,K,V) = \text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}} + M\Big)V
   prediction at every position (training) and why generation works at all.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     X["x (B,T,1024)"] --> QP["W_q → Q"] & KP["W_k → K"] & VP["W_v → V"]
     QP --> RQ["RoPE + QK-norm"]
@@ -117,6 +121,8 @@ flowchart LR
     SM --> MIX["weights @ V"]
     VP --> MIX
     MIX --> OP["W_o → out (B,T,1024)"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class X,OP data
 ```
 
 ### 4.2 Multi-head → grouped-query attention (GQA)
@@ -126,6 +132,7 @@ heads learn different relation types. **GQA:** give every *pair* of query
 heads one *shared* K/V head — Qwen3-0.6B: 16 Q heads, 8 KV heads.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     subgraph MHA["MHA: 16 Q, 16 KV"]
         q1["Q1"] --- k1["KV1"]
@@ -138,6 +145,8 @@ flowchart TB
         g3["Q3"] --> s2["KV2"]
         g4["Q4"] --> s2
     end
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class k1,k2,kd,s1,s2 data
 ```
 
 Why? **The KV cache** (Appendix E). At inference, cached K/V dominate memory;

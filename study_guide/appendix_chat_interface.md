@@ -14,6 +14,7 @@ A chat is just repeated generation over a **growing transcript** formatted
 with the chat template (Ch 2 §2):
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     U1["👤 user msg 1"] --> H[("history:<br/>list of (role, content)")]
     H --> FMT["apply chat template:<br/><im_start>user … <im_end><br/><im_start>assistant"]
@@ -21,6 +22,10 @@ flowchart TB
     GEN --> A1["🤖 assistant msg 1"]
     A1 --> H
     H --> U2["👤 user msg 2 …"] --> H
+    classDef dim fill:#f0efec,stroke:#898781,color:#52514e
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class U1,U2 dim
+    class H data
 ```
 
 ```python
@@ -57,6 +62,7 @@ def stream_generate(model, tok, ids, ...):
 ```
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"actorBkg":"#e0edfb","actorBorder":"#2a78d6","actorTextColor":"#0d366b","actorLineColor":"#a9a7a0","signalColor":"#898781","signalTextColor":"#898781","noteBkgColor":"#fdf0d1","noteTextColor":"#6b4a00","noteBorderColor":"#eda100","labelBoxBkgColor":"#f0efec","labelTextColor":"#52514e","loopTextColor":"#898781"}}}%%
 sequenceDiagram
     participant B as Browser
     participant S as Server
@@ -92,6 +98,7 @@ you need two-way, e.g. a stop button).
 ## 3. The minimal web app
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph FRONT["Browser (single HTML file)"]
         TA["textarea + send button"] --> JS["fetch('/chat', history)"]
@@ -104,6 +111,8 @@ flowchart LR
     end
     JS <-->|HTTP + SSE| EP
     MODEL[("model + tokenizer<br/>loaded ONCE at startup")] --> SG
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    class MODEL model
 ```
 
 ```python

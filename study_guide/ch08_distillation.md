@@ -12,6 +12,7 @@
 ## 1. The idea in one diagram
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     subgraph GEN["1. Generate traces"]
         T["🎓 Teacher<br/>(strong reasoning model,<br/>e.g. a large Qwen3/R1)"] -->|"solve many problems<br/>with full CoT"| RAW["raw traces:<br/>question + reasoning + answer"]
@@ -26,6 +27,12 @@ flowchart LR
         SFT --> OUT["🧠 distilled reasoning model"]
     end
     OUT --> EV["4. Evaluate (Ch 3 harness)"]
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class T,S,OUT model
+    class RAW,DS data
+    class V,EV dec
 ```
 
 That's the whole method. Its power is its simplicity: **step 3 is ordinary
@@ -85,9 +92,12 @@ loss = (loss * response_mask[:, 1:]).sum() / response_mask[:, 1:].sum()
 ```
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     SEQ["[system][user: question][assistant: think… answer]"] --> M["mask = 0 on prompt tokens,<br/>1 on assistant tokens"]
     M --> CE["cross-entropy only where mask=1"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    class SEQ data
 ```
 
 Why mask? The model shouldn't spend capacity learning to *reproduce questions*
@@ -112,12 +122,17 @@ accumulation.
 | Failure mode | Style mimicry without competence | Reward hacking, collapse |
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart TB
     Q1{"Does a much stronger<br/>reasoning model exist<br/>for your domain?"} -- yes --> Q2{"Can you generate/obtain<br/>traces from it at scale?"}
     Q1 -- no --> RL["Use RL with verifiable rewards<br/>(Ch 6–7) — someone must blaze the trail"]
     Q2 -- yes --> DIST["Distill (this chapter) —<br/>cheapest reliable win"]
     Q2 -- no --> RL
     DIST --> PLUS["Optionally: RL on top of the<br/>distilled model for further gains"]
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class Q1,Q2 dec
+    class DIST,PLUS good
 ```
 
 The headline empirical fact (DeepSeek-R1 paper, reproduced in spirit here):
@@ -143,10 +158,15 @@ shape the *style* of reasoning by curating the traces:
   student learns to *modulate* thinking length.
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     ALL["all correct traces per problem"] --> PICK["pick shortest correct trace"]
     PICK --> SFT2["SFT"]
     SFT2 --> RES["student: same accuracy,<br/>far fewer thinking tokens<br/>= cheaper + faster inference"]
+    classDef data fill:#d9f4e9,stroke:#1baf7a,color:#0b4a33
+    classDef good fill:#dcf3dc,stroke:#0ca30c,color:#006300
+    class ALL data
+    class RES good
 ```
 
 This closes the book's arc elegantly: Part 2 *bought* accuracy with more

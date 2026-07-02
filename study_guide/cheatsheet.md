@@ -8,6 +8,7 @@
 ## 1. The master map
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     BASE["Qwen3-0.6B base"] -->|Ch 2| GEN["generate()"]
     GEN -->|Ch 3| ACC["accuracy via verifier"]
@@ -15,6 +16,10 @@ flowchart LR
     ACC -->|Ch 5| REF["draft→critique→revise"]
     ACC -->|"Ch 6–7 (verifier = reward)"| GRPO["GRPO training"]
     ACC -->|"Ch 8 (verifier = filter)"| DIST["distillation SFT"]
+    classDef model fill:#e6e3f7,stroke:#4a3aa7,color:#251d54
+    classDef dec fill:#fdf0d1,stroke:#eda100,color:#6b4a00
+    class BASE model
+    class ACC dec
 ```
 
 **One sentence:** measure with a verifier, then improve — by prompting/sampling
@@ -109,6 +114,7 @@ distill; else RL (needs only a verifier). Both need the Ch 3 harness.
 ## 7. Architecture at a glance (App C)
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#e0edfb","primaryTextColor":"#0d366b","primaryBorderColor":"#2a78d6","lineColor":"#898781","textColor":"#52514e","edgeLabelBackground":"#f0efec","clusterBkg":"rgba(137,135,129,0.07)","clusterBorder":"#a9a7a0","titleColor":"#898781"},"flowchart":{"nodeSpacing":36,"rankSpacing":44,"curve":"basis","padding":10}}}%%
 flowchart LR
     E["embed 151k→1024<br/>(tied head)"] --> B["×28: RMSNorm → GQA attn<br/>(RoPE+QK-norm) → +res →<br/>RMSNorm → SwiGLU → +res"]
     B --> F["RMSNorm → logits"]
